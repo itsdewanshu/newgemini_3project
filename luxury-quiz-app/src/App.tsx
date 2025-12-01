@@ -10,9 +10,10 @@ import QuizLibraryScreen from './screens/QuizLibraryScreen';
 import QuizScreen from './screens/QuizScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ImportExportScreen from './screens/ImportExportScreen';
+import QuizEditorScreen from './screens/QuizEditorScreen';
 
 // Define the possible screens for our app
-export type Screen = 'HOME' | 'LIBRARY' | 'QUIZ' | 'SETTINGS' | 'IMPORT_EXPORT';
+export type Screen = 'HOME' | 'LIBRARY' | 'QUIZ' | 'SETTINGS' | 'IMPORT_EXPORT' | 'EDITOR';
 
 function App() {
   // State to manage the current view
@@ -62,12 +63,14 @@ function App() {
       case 'LIBRARY': return <QuizLibraryScreen />;
       case 'QUIZ': return <QuizScreen onExit={() => setCurrentScreen('IMPORT_EXPORT')} />;
       case 'SETTINGS': return <SettingsScreen />;
+      case 'EDITOR': return <QuizEditorScreen onExit={() => setCurrentScreen('IMPORT_EXPORT')} />;
       case 'IMPORT_EXPORT': return (
         <ImportExportScreen 
           quizSets={quizSets} 
           onImportSuccess={refresh} 
           onStartQuiz={handleStartQuiz}
           onDeleteQuiz={handleDeleteQuiz}
+          onOpenEditor={() => setCurrentScreen('EDITOR')}
         />
       );
       default: return <HomeScreen onSelectMode={handleModeSelect} />;
@@ -88,7 +91,7 @@ function App() {
       </div>
 
       {/* Main Content Container */}
-      <main className={`w-full max-w-lg min-h-[400px] transition-all duration-700 ease-out relative overflow-hidden rounded-3xl border p-10 ${theme.colors.card.bg} ${theme.colors.card.border} ${theme.colors.card.shadow} ${theme.colors.card.backdrop}`}>
+      <main className={`w-full ${currentScreen === 'EDITOR' ? 'max-w-5xl' : 'max-w-lg'} min-h-[400px] transition-all duration-700 ease-out relative overflow-hidden rounded-3xl border p-10 ${theme.colors.card.bg} ${theme.colors.card.border} ${theme.colors.card.shadow} ${theme.colors.card.backdrop}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentScreen}

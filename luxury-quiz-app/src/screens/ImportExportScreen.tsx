@@ -9,6 +9,7 @@ interface ImportExportScreenProps {
   onImportSuccess: () => void;
   onStartQuiz: (id: number) => void;
   onDeleteQuiz: (id: number) => void;
+  onOpenEditor: () => void;
 }
 
 const ImportExportScreen: React.FC<ImportExportScreenProps> = ({
@@ -16,6 +17,7 @@ const ImportExportScreen: React.FC<ImportExportScreenProps> = ({
   onImportSuccess,
   onStartQuiz,
   onDeleteQuiz,
+  onOpenEditor,
 }) => {
   const { theme } = useCurrentTheme();
   const [isDragging, setIsDragging] = useState(false);
@@ -106,6 +108,13 @@ const ImportExportScreen: React.FC<ImportExportScreenProps> = ({
           </div>
         )}
       </div>
+
+      <button
+        onClick={onOpenEditor}
+        className={`w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${theme.colors.button.primary} hover:shadow-lg`}
+      >
+        + Create New Quiz
+      </button>
 
       {/* Quiz List */}
       <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-3 min-h-[200px]">

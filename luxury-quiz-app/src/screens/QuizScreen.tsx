@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
 import ResultsScreen from './ResultsScreen';
+import QuestionCard from '../components/quiz/QuestionCard';
 import { 
   createQuizSession, 
   answerQuestion, 
@@ -284,36 +285,11 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
       </AnimatePresence>
 
       {/* Question Card */}
-      <div className="flex-1 flex flex-col justify-center mb-8">
-        <h3 className={`text-xl md:text-2xl font-medium leading-relaxed mb-8 ${theme.colors.text.primary}`}>
-          {currentQuestion.questionText}
-        </h3>
-
-        <div className="space-y-3">
-          {currentQuestion.options?.map((option, idx) => {
-            const isSelected = currentAnswer === option;
-            return (
-              <motion.button
-                key={idx}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleAnswer(option)}
-                className={`
-                  w-full p-4 text-left rounded-xl border transition-all duration-200
-                  ${isSelected 
-                    ? `${theme.colors.button.primary} border-opacity-100 shadow-lg` 
-                    : `${theme.colors.card.bg} ${theme.colors.card.border} hover:bg-white/10`
-                  }
-                `}
-              >
-                <span className={`text-sm ${isSelected ? theme.colors.text.primary : theme.colors.text.secondary}`}>
-                  {option}
-                </span>
-              </motion.button>
-            );
-          })}
-        </div>
-      </div>
+      <QuestionCard 
+        question={currentQuestion}
+        currentAnswer={currentAnswer}
+        onAnswer={handleAnswer}
+      />
 
       {/* Navigation */}
       <div className="flex justify-between items-center mt-auto pt-4 border-t border-white/5">
