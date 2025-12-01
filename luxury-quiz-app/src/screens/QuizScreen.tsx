@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 import ResultsScreen from './ResultsScreen';
 import QuestionRenderer from '../components/quiz/QuestionRenderer';
 import { 
@@ -22,6 +23,7 @@ import {
 const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   const { activeQuizSet, activeMode, clearActiveQuiz } = useQuizStore();
   const { theme } = useCurrentTheme();
+  const { playClick, playCorrect, playIncorrect } = useSoundEffects();
   const [session, setSession] = useState<QuizSession | null>(null);
   const [result, setResult] = useState<QuizResult | null>(null);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
@@ -136,7 +138,38 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   // Handlers
   const handleAnswer = (option: string | string[]) => {
     if (isProcessing) return;
-    setSession(prev => prev ? answerQuestion(prev, currentQuestion.id, option) : null);
+    
+    playClick();
+
+    // Immediate feedback sound for Practice Mode
+    if (activeMode === 'PRACTICE' && currentQuestion) {
+      let isCorrect = false;
+      
+      if (currentQuestion.type === 'hotspot') {
+        isCorrect = option === 'correct';
+      } else if (Array.isArray(option)) {
+        // Array comparison (Match or Multi)
+        if (currentQuestion.type === 'match') {
+          // Strict order for match
+          isCorrect = option.length === currentQuestion.correctAnswers.length &&
+                      option.every((val, i) => val === currentQuestion.correctAnswers[i]);
+        } else {
+          // Sort for multi-choice
+          const sortedOpt = [...option].sort();
+          const sortedCorr = [...currentQuestion.correctAnswers].sort();
+          isCorrect = sortedOpt.length === sortedCorr.length &&
+                      sortedOpt.every((val, i) => val === sortedCorr[i]);
+        }
+      } else {
+        // Single value comparison
+        isCorrect = currentQuestion.correctAnswers.includes(option);
+      }
+
+      if (isCorrect) playCorrect();
+      else playIncorrect();
+    }
+
+    setSession(prev => prev ? answerQuestion(prev, currentQuestion!.id, option) : null);
   };
 
   const handleNext = () => {
@@ -178,6 +211,14 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
       setResult(null);
     }
   };
+
+  // Sound effect on result
+  useEffect(() => {
+    if (result) {
+      if (result.score >= 50) playCorrect();
+      else playIncorrect();
+    }
+  }, [result, playCorrect, playIncorrect]);
 
   // Result View
   if (result) {
