@@ -1,4 +1,4 @@
-export type QuestionType = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank' | 'match' | 'media';
+export type QuestionType = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank' | 'match' | 'media' | 'hotspot';
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 
@@ -13,6 +13,7 @@ export interface Question {
   tags?: string[];
   mediaUrl?: string;
   mediaType?: 'audio' | 'video' | 'image';
+  hotspotTarget?: { x: number; y: number };
 }
 
 export interface QuizSet {

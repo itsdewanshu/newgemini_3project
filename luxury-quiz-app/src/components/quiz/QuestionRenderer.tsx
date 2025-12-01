@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Question } from '../../types/quizTypes';
 import { useCurrentTheme } from '../../hooks/useCurrentTheme';
 import MatchQuestion from './MatchQuestion';
+import HotspotQuestion from './HotspotQuestion';
 
 interface QuestionRendererProps {
   question: Question;
@@ -143,9 +144,19 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     />
   );
 
+  const renderHotspot = () => (
+    <HotspotQuestion
+      imageUrl={question.mediaUrl || ''}
+      targetX={question.hotspotTarget?.x || 0}
+      targetY={question.hotspotTarget?.y || 0}
+      onAnswer={(result) => onAnswer(result === 'correct' ? 'correct' : 'incorrect')}
+      disabled={disabled}
+    />
+  );
+
   return (
     <div className="flex-1 flex flex-col justify-center mb-8 w-full">
-      {renderMedia()}
+      {question.type !== 'hotspot' && renderMedia()}
       <h3 className={`text-xl md:text-2xl font-medium leading-relaxed mb-8 ${theme.colors.text.primary}`}>
         {question.questionText}
       </h3>
@@ -154,9 +165,10 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       {question.type === 'true_false' && renderTrueFalse()}
       {question.type === 'fill_blank' && renderFillBlank()}
       {question.type === 'match' && renderMatch()}
+      {question.type === 'hotspot' && renderHotspot()}
       
       {/* Fallback for unknown types */}
-      {!['mcq_single', 'true_false', 'fill_blank', 'match', 'media'].includes(question.type) && (
+      {!['mcq_single', 'true_false', 'fill_blank', 'match', 'media', 'hotspot'].includes(question.type) && (
         <div className="text-red-400">Unsupported question type: {question.type}</div>
       )}
     </div>
