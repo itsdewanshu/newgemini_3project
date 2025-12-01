@@ -36,6 +36,7 @@ function App() {
   const handleModeSelect = (selectedMode: 'PRACTICE' | 'TEST' | 'ZEN') => {
     console.log('Mode selected:', selectedMode);
     setPendingMode(selectedMode);
+    switchTheme(selectedMode.toLowerCase() as ThemeMode);
     setCurrentScreen('IMPORT_EXPORT');
   };
 
@@ -59,7 +60,7 @@ function App() {
     switch (currentScreen) {
       case 'HOME': return <HomeScreen onSelectMode={handleModeSelect} />;
       case 'LIBRARY': return <QuizLibraryScreen />;
-      case 'QUIZ': return <QuizScreen />;
+      case 'QUIZ': return <QuizScreen onExit={() => setCurrentScreen('IMPORT_EXPORT')} />;
       case 'SETTINGS': return <SettingsScreen />;
       case 'IMPORT_EXPORT': return (
         <ImportExportScreen 

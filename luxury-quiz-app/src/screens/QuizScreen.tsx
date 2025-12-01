@@ -15,7 +15,11 @@ import {
   QuizResult 
 } from '../engine/quizEngine';
 
-const QuizScreen = () => {
+interface QuizScreenProps {
+  onExit: () => void;
+}
+
+const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   const { activeQuizSet, activeMode, clearActiveQuiz } = useQuizStore();
   const { theme } = useCurrentTheme();
   const [session, setSession] = useState<QuizSession | null>(null);
@@ -82,7 +86,7 @@ const QuizScreen = () => {
         <h2 className={`text-2xl font-bold ${theme.colors.text.primary}`}>No Active Quiz</h2>
         <p className={`text-sm ${theme.colors.text.secondary}`}>Please select a quiz from the library.</p>
         <button 
-          onClick={clearActiveQuiz}
+          onClick={onExit}
           className={`px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${theme.colors.button.primary} ${theme.colors.button.hover}`}
         >
           Go Back
@@ -145,8 +149,8 @@ const QuizScreen = () => {
         activeMode={activeMode || 'PRACTICE'}
         quizTitle={activeQuizSet.title}
         onRetry={handleRetry}
-        onLibrary={clearActiveQuiz}
-        onHome={clearActiveQuiz}
+        onLibrary={() => { clearActiveQuiz(); onExit(); }}
+        onHome={() => { clearActiveQuiz(); onExit(); }}
       />
     );
   }
