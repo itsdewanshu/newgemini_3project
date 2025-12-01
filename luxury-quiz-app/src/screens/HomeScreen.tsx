@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
 
 interface HomeScreenProps {
-  onSelectMode: (mode: 'PRACTICE' | 'TEST' | 'ZEN') => void;
+  onSelectMode: (mode: 'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER') => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectMode }) => {
@@ -71,6 +71,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectMode }) => {
           <div className="flex items-center justify-between">
             <span className={`text-sm font-bold tracking-widest uppercase ${theme.colors.text.primary}`}>Zen</span>
             <span className={`text-xs opacity-60 ${theme.colors.text.secondary}`}>Relax</span>
+          </div>
+        </motion.button>
+
+        <motion.button 
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => onSelectMode('CHALLENGER')}
+          className={`group relative w-full py-4 px-6 rounded-xl border transition-all duration-300 ease-out overflow-hidden bg-red-900/20 border-red-500/30 hover:border-red-500/60 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)]`}
+        >
+          <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-red-500`}></div>
+          <div className="flex items-center justify-between">
+            <span className={`text-sm font-bold tracking-widest uppercase text-red-100`}>Challenger</span>
+            <span className={`text-xs opacity-80 text-red-300`}>Hardcore</span>
           </div>
         </motion.button>
 

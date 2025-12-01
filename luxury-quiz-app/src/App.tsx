@@ -17,7 +17,7 @@ export type Screen = 'HOME' | 'LIBRARY' | 'QUIZ' | 'SETTINGS' | 'IMPORT_EXPORT';
 function App() {
   // State to manage the current view
   const [currentScreen, setCurrentScreen] = useState<Screen>('HOME');
-  const [pendingMode, setPendingMode] = useState<'PRACTICE' | 'TEST' | 'ZEN' | null>(null);
+  const [pendingMode, setPendingMode] = useState<'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER' | null>(null);
   
   // Theme management
   const { theme, switchTheme, mode } = useCurrentTheme();
@@ -27,13 +27,13 @@ function App() {
   const { setActiveQuizSet } = useQuizStore();
 
   const cycleTheme = () => {
-    const modes: ThemeMode[] = ['practice', 'test', 'zen'];
+    const modes: ThemeMode[] = ['practice', 'test', 'zen', 'challenger'];
     const currentIndex = modes.indexOf(mode);
     const nextIndex = (currentIndex + 1) % modes.length;
     switchTheme(modes[nextIndex]);
   };
 
-  const handleModeSelect = (selectedMode: 'PRACTICE' | 'TEST' | 'ZEN') => {
+  const handleModeSelect = (selectedMode: 'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER') => {
     console.log('Mode selected:', selectedMode);
     setPendingMode(selectedMode);
     switchTheme(selectedMode.toLowerCase() as ThemeMode);

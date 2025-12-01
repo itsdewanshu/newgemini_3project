@@ -1,5 +1,7 @@
 import { Question } from '../types/quizTypes';
 
+export type QuizMode = 'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER';
+
 export interface QuizSession {
   questionIds: string[];
   currentIndex: number;
@@ -8,6 +10,7 @@ export interface QuizSession {
   status: 'idle' | 'in-progress' | 'completed';
   startTime: number;
   endTime?: number;
+  mode: QuizMode;
 }
 
 export interface QuizResult {
@@ -18,7 +21,7 @@ export interface QuizResult {
   totalQuestions: number;
 }
 
-export const createQuizSession = (questions: Question[]): QuizSession => {
+export const createQuizSession = (questions: Question[], mode: QuizMode = 'PRACTICE'): QuizSession => {
   return {
     questionIds: questions.map(q => q.id),
     currentIndex: 0,
@@ -26,7 +29,12 @@ export const createQuizSession = (questions: Question[]): QuizSession => {
     reviewList: [],
     status: 'in-progress',
     startTime: Date.now(),
+    mode,
   };
+};
+
+export const shouldAllowBack = (session: QuizSession): boolean => {
+  return session.mode !== 'CHALLENGER';
 };
 
 export const answerQuestion = (

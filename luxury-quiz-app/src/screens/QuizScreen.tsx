@@ -10,12 +10,11 @@ import {
   goPrev, 
   goToQuestion,
   markForReview,
-  calculateScore, 
+  calculateScore,
+  shouldAllowBack, 
   QuizSession, 
   QuizResult 
-} from '../engine/quizEngine';
-
-interface QuizScreenProps {
+} from '../engine/quizEngine';interface QuizScreenProps {
   onExit: () => void;
 }
 
@@ -25,11 +24,12 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   const [session, setSession] = useState<QuizSession | null>(null);
   const [result, setResult] = useState<QuizResult | null>(null);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30);
 
   // Initialize session on mount
   useEffect(() => {
     if (activeQuizSet) {
-      setSession(createQuizSession(activeQuizSet.questions));
+      setSession(createQuizSession(activeQuizSet.questions, (activeMode as any) || 'PRACTICE'));
     }
   }, [activeQuizSet]);
 
@@ -79,6 +79,32 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeQuizSet, session, currentQuestion]);
+
+  // Timer for Challenger Mode
+  useEffect(() => {
+    if (activeMode !== 'CHALLENGER' || !session || !currentQuestion || result) return;
+
+    setTimeLeft(30); // Reset timer on question change
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          // Time's up! Auto-advance
+          if (session.currentIndex === activeQuizSet!.questions.length - 1) {
+             const scoreResult = calculateScore(session, activeQuizSet!.questions);
+             setResult(scoreResult);
+          } else {
+             setSession(prevSession => prevSession ? goNext(prevSession) : null);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [session?.currentIndex, activeMode, result]);
 
   if (!activeQuizSet) {
     return (
@@ -132,7 +158,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
 
   const handleRetry = () => {
     if (activeQuizSet) {
-      setSession(createQuizSession(activeQuizSet.questions));
+      setSession(createQuizSession(activeQuizSet.questions, (activeMode as any) || 'PRACTICE'));
       setResult(null);
     }
   };
@@ -175,6 +201,11 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
           <span className={`text-xs font-bold tracking-widest uppercase ${theme.colors.text.secondary}`}>
             {activeMode} Mode
           </span>
+          {activeMode === 'CHALLENGER' && (
+             <span className={`text-xs font-bold tracking-widest text-red-400 ml-2`}>
+               {timeLeft}s
+             </span>
+          )}
         </div>
         
         <div className="flex items-center gap-4">
@@ -286,13 +317,17 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
 
       {/* Navigation */}
       <div className="flex justify-between items-center mt-auto pt-4 border-t border-white/5">
-        <button
-          onClick={handlePrev}
-          disabled={session.currentIndex === 0}
-          className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${session.currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'} ${theme.colors.text.secondary}`}
-        >
-          Previous
-        </button>
+        {shouldAllowBack(session) ? (
+          <button
+            onClick={handlePrev}
+            disabled={session.currentIndex === 0}
+            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${session.currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'} ${theme.colors.text.secondary}`}
+          >
+            Previous
+          </button>
+        ) : (
+          <div /> // Spacer
+        )}
 
         {session.currentIndex === activeQuizSet.questions.length - 1 ? (
           <button

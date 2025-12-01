@@ -1,4 +1,4 @@
-export type ThemeMode = 'practice' | 'test' | 'zen';
+export type ThemeMode = 'practice' | 'test' | 'zen' | 'challenger';
 
 export interface Theme {
   id: ThemeMode;
@@ -96,8 +96,33 @@ export const zenTheme: Theme = {
   },
 };
 
+export const challengerTheme: Theme = {
+  id: 'challenger',
+  name: 'Challenger Mode',
+  colors: {
+    background: 'bg-gradient-to-br from-red-950 via-black to-slate-900',
+    text: {
+      primary: 'text-red-50',
+      secondary: 'text-red-200/60',
+      accent: 'text-amber-500',
+    },
+    card: {
+      bg: 'bg-black/60',
+      border: 'border-red-600/30',
+      shadow: 'shadow-[0_0_40px_rgba(220,38,38,0.2)]',
+      backdrop: 'backdrop-blur-xl',
+    },
+    button: {
+      primary: 'bg-red-600/20 text-red-200 border-red-600/40',
+      secondary: 'bg-slate-800/40 text-slate-400 border-slate-700',
+      hover: 'hover:bg-red-600/30 hover:border-red-500/60 hover:shadow-[0_0_20px_rgba(220,38,38,0.4)]',
+    },
+  },
+};
+
 export const themes: Record<ThemeMode, Theme> = {
   practice: practiceTheme,
   test: testTheme,
   zen: zenTheme,
+  challenger: challengerTheme,
 };
