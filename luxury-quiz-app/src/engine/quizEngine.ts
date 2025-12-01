@@ -100,16 +100,17 @@ export const calculateScore = (session: QuizSession, questions: Question[]): Qui
     }
 
     // Compare arrays (order doesn't matter for multi-select usually, but let's sort to be safe)
-    const correctAnswers = question.correctAnswers;
+    const correctAnswers = [...question.correctAnswers].sort();
+    const sortedUserAnswers = [...userAnswers].sort();
     
     // Check if lengths match
-    if (userAnswers.length !== correctAnswers.length) {
+    if (sortedUserAnswers.length !== correctAnswers.length) {
       incorrectCount++;
       return;
     }
 
-    // Check if all user answers are in correct answers
-    const isCorrect = userAnswers.every(ans => correctAnswers.includes(ans));
+    // Check if all user answers are in correct answers (strict equality after sort)
+    const isCorrect = sortedUserAnswers.every((ans, index) => ans === correctAnswers[index]);
     
     if (isCorrect) {
       correctCount++;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCurrentTheme } from './hooks/useCurrentTheme';
 import { useQuizBank } from './hooks/useQuizBank';
+import { useQuizStore } from './store/quizStore';
 import { deleteQuizSet } from './db/quizDb';
 import { ThemeMode } from './theme/themeConfig';
 import HomeScreen from './screens/HomeScreen';
@@ -16,12 +17,14 @@ export type Screen = 'HOME' | 'LIBRARY' | 'QUIZ' | 'SETTINGS' | 'IMPORT_EXPORT';
 function App() {
   // State to manage the current view
   const [currentScreen, setCurrentScreen] = useState<Screen>('HOME');
+  const [pendingMode, setPendingMode] = useState<'PRACTICE' | 'TEST' | 'ZEN' | null>(null);
   
   // Theme management
   const { theme, switchTheme, mode } = useCurrentTheme();
   
   // Quiz Data
   const { quizSets, refresh } = useQuizBank();
+  const { setActiveQuizSet } = useQuizStore();
 
   const cycleTheme = () => {
     const modes: ThemeMode[] = ['practice', 'test', 'zen'];
@@ -32,13 +35,17 @@ function App() {
 
   const handleModeSelect = (selectedMode: 'PRACTICE' | 'TEST' | 'ZEN') => {
     console.log('Mode selected:', selectedMode);
-    // Future: Configure quiz based on mode and navigate to quiz screen
-    setCurrentScreen('QUIZ');
+    setPendingMode(selectedMode);
+    setCurrentScreen('IMPORT_EXPORT');
   };
 
   const handleStartQuiz = (id: number) => {
     console.log('Starting quiz:', id);
-    setCurrentScreen('QUIZ');
+    const selectedQuiz = quizSets.find(q => q.id === id);
+    if (selectedQuiz) {
+      setActiveQuizSet(selectedQuiz, pendingMode || 'PRACTICE');
+      setCurrentScreen('QUIZ');
+    }
   };
 
   const handleDeleteQuiz = async (id: number) => {

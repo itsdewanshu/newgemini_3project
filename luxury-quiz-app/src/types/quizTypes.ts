@@ -14,7 +14,7 @@ export interface Question {
 }
 
 export interface QuizSet {
-  id?: string; // Optional for new sets before saving to DB
+  id?: number; // Optional for new sets before saving to DB
   title: string;
   description?: string;
   createdAt: number; // Timestamp for easy serialization

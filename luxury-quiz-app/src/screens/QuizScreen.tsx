@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
+import ResultsScreen from './ResultsScreen';
 import { 
   createQuizSession, 
   answerQuestion, 
@@ -125,34 +126,28 @@ const QuizScreen = () => {
     }
   };
 
+  const handleRetry = () => {
+    if (activeQuizSet) {
+      setSession(createQuizSession(activeQuizSet.questions));
+      setResult(null);
+    }
+  };
+
   // Result View
   if (result) {
     return (
-      <div className="flex flex-col items-center justify-center h-full animate-fade-in gap-6 w-full">
-        <h2 className={`text-3xl font-bold ${theme.colors.text.primary}`}>Quiz Complete</h2>
-        
-        <div className={`text-6xl font-black ${theme.colors.text.accent}`}>
-          {result.score}%
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 w-full max-w-xs text-center">
-          <div className={`p-4 rounded-xl border ${theme.colors.card.bg} ${theme.colors.card.border}`}>
-            <div className="text-2xl font-bold text-green-400">{result.correctCount}</div>
-            <div className={`text-xs uppercase tracking-wider ${theme.colors.text.secondary}`}>Correct</div>
-          </div>
-          <div className={`p-4 rounded-xl border ${theme.colors.card.bg} ${theme.colors.card.border}`}>
-            <div className="text-2xl font-bold text-red-400">{result.incorrectCount}</div>
-            <div className={`text-xs uppercase tracking-wider ${theme.colors.text.secondary}`}>Incorrect</div>
-          </div>
-        </div>
-
-        <button 
-          onClick={clearActiveQuiz}
-          className={`mt-4 px-8 py-3 rounded-full text-sm font-bold uppercase tracking-wider ${theme.colors.button.primary} ${theme.colors.button.hover}`}
-        >
-          Return Home
-        </button>
-      </div>
+      <ResultsScreen
+        score={result.score}
+        totalQuestions={activeQuizSet.questions.length}
+        correctCount={result.correctCount}
+        incorrectCount={result.incorrectCount}
+        notAttemptedCount={activeQuizSet.questions.length - result.correctCount - result.incorrectCount}
+        activeMode={activeMode || 'PRACTICE'}
+        quizTitle={activeQuizSet.title}
+        onRetry={handleRetry}
+        onLibrary={clearActiveQuiz}
+        onHome={clearActiveQuiz}
+      />
     );
   }
 

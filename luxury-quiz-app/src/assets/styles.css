@@ -3,11 +3,6 @@
 @tailwind utilities;
 
 /* Custom styles for glassmorphism and premium design */
-body {
-    @apply bg-gradient-to-r from-blue-500 to-purple-500;
-    backdrop-filter: blur(10px);
-    color: white;
-}
 
 h1, h2, h3, h4, h5, h6 {
     @apply font-serif;

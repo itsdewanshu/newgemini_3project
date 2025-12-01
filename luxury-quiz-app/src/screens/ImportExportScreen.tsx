@@ -129,13 +129,13 @@ const ImportExportScreen: React.FC<ImportExportScreenProps> = ({
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={(e) => { e.stopPropagation(); onStartQuiz(quiz.id as unknown as number); }}
+                  onClick={(e) => { e.stopPropagation(); if (quiz.id) onStartQuiz(quiz.id); }}
                   className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors ${theme.colors.button.primary} ${theme.colors.button.hover}`}
                 >
                   Start
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); onDeleteQuiz(quiz.id as unknown as number); }}
+                  onClick={(e) => { e.stopPropagation(); if (quiz.id) onDeleteQuiz(quiz.id); }}
                   className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20`}
                 >
                   Del
