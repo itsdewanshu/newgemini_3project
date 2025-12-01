@@ -1,1 +1,0 @@
-# newgemini_3project
