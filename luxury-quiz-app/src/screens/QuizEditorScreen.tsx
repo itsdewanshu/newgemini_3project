@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
 import { Question, QuestionType, QuizSet } from '../types/quizTypes';
 import { addQuizSet } from '../db/quizDb';
-import QuestionCard from '../components/quiz/QuestionCard';
+import QuestionRenderer from '../components/quiz/QuestionRenderer';
 
 interface QuizEditorScreenProps {
   onExit: () => void;
@@ -198,6 +198,32 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                           />
                         </div>
 
+                        {/* Media Fields */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Media URL</label>
+                            <input
+                              type="text"
+                              value={q.mediaUrl || ''}
+                              onChange={(e) => updateQuestion(idx, 'mediaUrl', e.target.value)}
+                              className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                              placeholder="https://..."
+                            />
+                          </div>
+                          <div>
+                            <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Media Type</label>
+                            <select
+                              value={q.mediaType || 'image'}
+                              onChange={(e) => updateQuestion(idx, 'mediaType', e.target.value)}
+                              className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                            >
+                              <option value="image">Image</option>
+                              <option value="audio">Audio</option>
+                              <option value="video">Video</option>
+                            </select>
+                          </div>
+                        </div>
+
                         {/* Type & Correct Answer */}
                         <div className="grid grid-cols-2 gap-3">
                           <div>
@@ -276,7 +302,7 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                   </div>
                 </div>
                 
-                <QuestionCard 
+                <QuestionRenderer 
                   question={activeQuestion}
                   currentAnswer={activeQuestion.correctAnswers[0]} // Preview with correct answer selected
                   onAnswer={() => {}}

@@ -19,6 +19,43 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 }) => {
   const { theme } = useCurrentTheme();
 
+  const renderMedia = () => {
+    if (!question.mediaUrl) return null;
+
+    const commonClasses = "w-full rounded-xl mb-6 shadow-lg border border-white/10 bg-black/20 overflow-hidden";
+
+    switch (question.mediaType) {
+      case 'image':
+        return (
+          <div className={commonClasses}>
+            <img 
+              src={question.mediaUrl} 
+              alt="Question Media" 
+              className="w-full h-auto max-h-64 object-contain mx-auto" 
+            />
+          </div>
+        );
+      case 'video':
+        return (
+          <div className={commonClasses}>
+            <video 
+              src={question.mediaUrl} 
+              controls 
+              className="w-full max-h-64 mx-auto" 
+            />
+          </div>
+        );
+      case 'audio':
+        return (
+          <div className={`${commonClasses} p-4 flex justify-center items-center`}>
+            <audio src={question.mediaUrl} controls className="w-full" />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   const renderMCQ = () => (
     <div className="space-y-3">
       {question.options?.map((option, idx) => {
@@ -108,17 +145,18 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
   return (
     <div className="flex-1 flex flex-col justify-center mb-8 w-full">
+      {renderMedia()}
       <h3 className={`text-xl md:text-2xl font-medium leading-relaxed mb-8 ${theme.colors.text.primary}`}>
         {question.questionText}
       </h3>
 
-      {question.type === 'mcq_single' && renderMCQ()}
+      {(question.type === 'mcq_single' || question.type === 'media') && renderMCQ()}
       {question.type === 'true_false' && renderTrueFalse()}
       {question.type === 'fill_blank' && renderFillBlank()}
       {question.type === 'match' && renderMatch()}
       
       {/* Fallback for unknown types */}
-      {!['mcq_single', 'true_false', 'fill_blank', 'match'].includes(question.type) && (
+      {!['mcq_single', 'true_false', 'fill_blank', 'match', 'media'].includes(question.type) && (
         <div className="text-red-400">Unsupported question type: {question.type}</div>
       )}
     </div>

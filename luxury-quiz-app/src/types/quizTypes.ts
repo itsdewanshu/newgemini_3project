@@ -1,4 +1,4 @@
-export type QuestionType = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank' | 'match';
+export type QuestionType = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank' | 'match' | 'media';
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 
@@ -11,6 +11,8 @@ export interface Question {
   explanation?: string;
   difficulty?: DifficultyLevel;
   tags?: string[];
+  mediaUrl?: string;
+  mediaType?: 'audio' | 'video' | 'image';
 }
 
 export interface QuizSet {
