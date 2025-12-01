@@ -5,6 +5,7 @@ import { useCurrentTheme } from '../hooks/useCurrentTheme';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import ResultsScreen from './ResultsScreen';
 import QuestionRenderer from '../components/quiz/QuestionRenderer';
+import ZenParticles from '../components/layout/ZenParticles';
 import { 
   createQuizSession, 
   answerQuestion, 
@@ -246,6 +247,8 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
 
   return (
     <div className="flex flex-col h-full w-full animate-fade-in relative overflow-hidden">
+      {activeMode === 'ZEN' && <ZenParticles />}
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-6 z-10">
         <div className="flex items-center gap-4">

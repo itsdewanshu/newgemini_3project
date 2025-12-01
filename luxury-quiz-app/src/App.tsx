@@ -11,6 +11,7 @@ import QuizScreen from './screens/QuizScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ImportExportScreen from './screens/ImportExportScreen';
 import QuizEditorScreen from './screens/QuizEditorScreen';
+import ZenParticles from './components/layout/ZenParticles';
 
 // Define the possible screens for our app
 export type Screen = 'HOME' | 'LIBRARY' | 'QUIZ' | 'SETTINGS' | 'IMPORT_EXPORT' | 'EDITOR';
@@ -80,6 +81,9 @@ function App() {
   return (
     <div className={`min-h-screen w-full flex items-center justify-center p-4 font-sans transition-colors duration-700 ease-in-out ${theme.colors.background} ${theme.colors.text.primary}`}>
       
+      {/* Zen Mode Particles */}
+      {mode === 'zen' && <ZenParticles />}
+
       {/* Theme Switcher */}
       <div className="absolute top-6 right-6 z-50">
         <button 
