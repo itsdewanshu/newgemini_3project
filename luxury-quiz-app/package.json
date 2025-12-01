@@ -1,6 +1,7 @@
 {
   "name": "luxury-quiz-app",
   "version": "1.0.0",
+  "type": "module",
   "description": "A luxury quiz web application built with React, Vite, TypeScript, and Tailwind CSS.",
   "main": "index.js",
   "scripts": {
