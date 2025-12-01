@@ -1,59 +1,112 @@
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useCurrentTheme } from './hooks/useCurrentTheme';
+import { useQuizBank } from './hooks/useQuizBank';
+import { deleteQuizSet } from './db/quizDb';
+import { ThemeMode } from './theme/themeConfig';
+import HomeScreen from './screens/HomeScreen';
+import QuizLibraryScreen from './screens/QuizLibraryScreen';
+import QuizScreen from './screens/QuizScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import ImportExportScreen from './screens/ImportExportScreen';
 
 // Define the possible screens for our app
-type Screen = 'home' | 'quiz' | 'results';
+export type Screen = 'HOME' | 'LIBRARY' | 'QUIZ' | 'SETTINGS' | 'IMPORT_EXPORT';
 
 function App() {
   // State to manage the current view
-  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('HOME');
+  
+  // Theme management
+  const { theme, switchTheme, mode } = useCurrentTheme();
+  
+  // Quiz Data
+  const { quizSets, refresh } = useQuizBank();
+
+  const cycleTheme = () => {
+    const modes: ThemeMode[] = ['practice', 'test', 'zen'];
+    const currentIndex = modes.indexOf(mode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    switchTheme(modes[nextIndex]);
+  };
+
+  const handleModeSelect = (selectedMode: 'PRACTICE' | 'TEST' | 'ZEN') => {
+    console.log('Mode selected:', selectedMode);
+    // Future: Configure quiz based on mode and navigate to quiz screen
+    setCurrentScreen('QUIZ');
+  };
+
+  const handleStartQuiz = (id: number) => {
+    console.log('Starting quiz:', id);
+    setCurrentScreen('QUIZ');
+  };
+
+  const handleDeleteQuiz = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this quiz?')) {
+      await deleteQuizSet(id);
+      refresh();
+    }
+  };
+
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'HOME': return <HomeScreen onSelectMode={handleModeSelect} />;
+      case 'LIBRARY': return <QuizLibraryScreen />;
+      case 'QUIZ': return <QuizScreen />;
+      case 'SETTINGS': return <SettingsScreen />;
+      case 'IMPORT_EXPORT': return (
+        <ImportExportScreen 
+          quizSets={quizSets} 
+          onImportSuccess={refresh} 
+          onStartQuiz={handleStartQuiz}
+          onDeleteQuiz={handleDeleteQuiz}
+        />
+      );
+      default: return <HomeScreen onSelectMode={handleModeSelect} />;
+    }
+  };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 via-black to-slate-900 flex items-center justify-center p-4 text-slate-200 font-sans selection:bg-amber-500/30">
+    <div className={`min-h-screen w-full flex items-center justify-center p-4 font-sans transition-colors duration-700 ease-in-out ${theme.colors.background} ${theme.colors.text.primary}`}>
       
+      {/* Theme Switcher */}
+      <div className="absolute top-6 right-6 z-50">
+        <button 
+          onClick={cycleTheme}
+          className={`px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 ${theme.colors.button.secondary} hover:bg-white/10`}
+        >
+          {theme.name}
+        </button>
+      </div>
+
       {/* Main Content Container */}
-      <main className="w-full max-w-lg transition-all duration-700 ease-out">
-        
-        {currentScreen === 'home' && (
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-10 shadow-2xl backdrop-blur-xl">
-            
-            {/* Decorative ambient glow (Neon Zen) */}
-            <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
-            <div className="absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl pointer-events-none"></div>
-
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <h1 className="mb-2 text-5xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-500 drop-shadow-sm">
-                Luxury Quiz
-              </h1>
-              
-              <p className="mb-10 text-xs font-medium tracking-[0.2em] text-amber-500/60 uppercase">
-                Premium Knowledge Engine
-              </p>
-
-              <button 
-                onClick={() => setCurrentScreen('quiz')}
-                className="group relative px-8 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-amber-500/30 transition-all duration-300 ease-out"
-              >
-                <span className="text-sm font-semibold tracking-wide text-slate-300 group-hover:text-amber-200 transition-colors">
-                  BEGIN EXPERIENCE
-                </span>
-                {/* Button Glow Effect */}
-                <div className="absolute inset-0 rounded-full ring-1 ring-white/10 group-hover:ring-amber-500/50 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all duration-300"></div>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Placeholders for future screens */}
-        {currentScreen === 'quiz' && (
-           <div className="text-center text-slate-500 animate-pulse">Quiz Interface Loading...</div>
-        )}
-        
-        {currentScreen === 'results' && (
-           <div className="text-center text-slate-500 animate-pulse">Results Interface Loading...</div>
-        )}
-
+      <main className={`w-full max-w-lg min-h-[400px] transition-all duration-700 ease-out relative overflow-hidden rounded-3xl border p-10 ${theme.colors.card.bg} ${theme.colors.card.border} ${theme.colors.card.shadow} ${theme.colors.card.backdrop}`}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentScreen}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="h-full w-full"
+          >
+            {renderScreen()}
+          </motion.div>
+        </AnimatePresence>
       </main>
+
+      {/* Navigation Menu (for prototype navigation) */}
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/40 backdrop-blur-xl rounded-full border border-white/10 shadow-2xl z-50">
+        {(['HOME', 'LIBRARY', 'QUIZ', 'SETTINGS', 'IMPORT_EXPORT'] as Screen[]).map((s) => (
+          <button 
+            key={s} 
+            onClick={() => setCurrentScreen(s)} 
+            className={`px-3 py-2 rounded-full text-[10px] font-bold tracking-widest transition-all duration-300 ${currentScreen === s ? theme.colors.button.primary : 'text-slate-500 hover:text-slate-300'}`}
+          >
+            {s}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
