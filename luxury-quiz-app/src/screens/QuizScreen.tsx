@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
 import ResultsScreen from './ResultsScreen';
-import QuestionCard from '../components/quiz/QuestionCard';
+import QuestionRenderer from '../components/quiz/QuestionRenderer';
 import { 
   createQuizSession, 
   answerQuestion, 
@@ -286,8 +286,8 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
         )}
       </AnimatePresence>
 
-      {/* Question Card */}
-      <QuestionCard 
+      {/* Question Renderer */}
+      <QuestionRenderer 
         question={currentQuestion}
         currentAnswer={currentAnswer}
         onAnswer={handleAnswer}

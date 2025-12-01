@@ -1,4 +1,4 @@
-export type QuestionType = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank';
+export type QuestionType = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank' | 'match';
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 
