@@ -19,6 +19,8 @@ export interface QuizResult {
   incorrectCount: number;
   notAttemptedCount: number;
   totalQuestions: number;
+  averageTimePerQuestion: number; // in seconds
+  longestStreak: number;
 }
 
 export const createQuizSession = (questions: Question[], mode: QuizMode = 'PRACTICE'): QuizSession => {
@@ -98,12 +100,15 @@ export const calculateScore = (session: QuizSession, questions: Question[]): Qui
   let correctCount = 0;
   let incorrectCount = 0;
   let notAttemptedCount = 0;
+  let currentStreak = 0;
+  let longestStreak = 0;
 
   questions.forEach(question => {
     const userAnswers = session.answers[question.id];
     
     if (!userAnswers || userAnswers.length === 0) {
       notAttemptedCount++;
+      currentStreak = 0;
       return;
     }
 
@@ -114,6 +119,7 @@ export const calculateScore = (session: QuizSession, questions: Question[]): Qui
     // Check if lengths match
     if (sortedUserAnswers.length !== correctAnswers.length) {
       incorrectCount++;
+      currentStreak = 0;
       return;
     }
 
@@ -122,19 +128,31 @@ export const calculateScore = (session: QuizSession, questions: Question[]): Qui
     
     if (isCorrect) {
       correctCount++;
+      currentStreak++;
+      if (currentStreak > longestStreak) {
+        longestStreak = currentStreak;
+      }
     } else {
       incorrectCount++;
+      currentStreak = 0;
     }
   });
 
   const totalQuestions = questions.length;
   const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
+  // Calculate average time
+  const endTime = Date.now();
+  const durationMs = endTime - session.startTime;
+  const averageTimePerQuestion = totalQuestions > 0 ? (durationMs / 1000) / totalQuestions : 0;
+
   return {
     score,
     correctCount,
     incorrectCount,
     notAttemptedCount,
-    totalQuestions
+    totalQuestions,
+    averageTimePerQuestion: Math.round(averageTimePerQuestion * 10) / 10,
+    longestStreak
   };
 };

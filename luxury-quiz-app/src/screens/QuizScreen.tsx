@@ -173,6 +173,8 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
         correctCount={result.correctCount}
         incorrectCount={result.incorrectCount}
         notAttemptedCount={activeQuizSet.questions.length - result.correctCount - result.incorrectCount}
+        averageTimePerQuestion={result.averageTimePerQuestion || 0}
+        longestStreak={result.longestStreak || 0}
         activeMode={activeMode || 'PRACTICE'}
         quizTitle={activeQuizSet.title}
         onRetry={handleRetry}
