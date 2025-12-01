@@ -26,6 +26,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   const [result, setResult] = useState<QuizResult | null>(null);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Initialize session on mount
   useEffect(() => {
@@ -81,9 +82,14 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeQuizSet, session, currentQuestion]);
 
+  // Unlock interface when question changes
+  useEffect(() => {
+    setIsProcessing(false);
+  }, [session?.currentIndex]);
+
   // Timer for Challenger Mode
   useEffect(() => {
-    if (activeMode !== 'CHALLENGER' || !session || !currentQuestion || result) return;
+    if (activeMode !== 'CHALLENGER' || !session || !currentQuestion || result || isProcessing) return;
 
     setTimeLeft(30); // Reset timer on question change
 
@@ -96,6 +102,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
              const scoreResult = calculateScore(session, activeQuizSet!.questions);
              setResult(scoreResult);
           } else {
+             setIsProcessing(true);
              setSession(prevSession => prevSession ? goNext(prevSession) : null);
           }
           return 0;
@@ -105,7 +112,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [session?.currentIndex, activeMode, result]);
+  }, [session?.currentIndex, activeMode, result, isProcessing]);
 
   if (!activeQuizSet) {
     return (
@@ -127,31 +134,39 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   }
 
   // Handlers
-  const handleAnswer = (option: string) => {
+  const handleAnswer = (option: string | string[]) => {
+    if (isProcessing) return;
     setSession(prev => prev ? answerQuestion(prev, currentQuestion.id, option) : null);
   };
 
   const handleNext = () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     setSession(prev => prev ? goNext(prev) : null);
   };
 
   const handlePrev = () => {
+    if (isProcessing) return;
     setSession(prev => prev ? goPrev(prev) : null);
   };
 
   const handleGoTo = (index: number) => {
+    if (isProcessing) return;
     setSession(prev => prev ? goToQuestion(prev, index) : null);
     setIsPaletteOpen(false);
   };
 
   const handleMarkReview = () => {
+    if (isProcessing) return;
     if (session && currentQuestion) {
       setSession(markForReview(session, currentQuestion.id));
     }
   };
 
   const handleSubmit = () => {
+    if (isProcessing) return;
     if (window.confirm('Are you sure you want to submit?')) {
+      setIsProcessing(true);
       const scoreResult = calculateScore(session, activeQuizSet.questions);
       setResult(scoreResult);
     }

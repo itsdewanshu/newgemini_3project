@@ -112,19 +112,22 @@ export const calculateScore = (session: QuizSession, questions: Question[]): Qui
       return;
     }
 
-    // Compare arrays (order doesn't matter for multi-select usually, but let's sort to be safe)
-    const correctAnswers = [...question.correctAnswers].sort();
-    const sortedUserAnswers = [...userAnswers].sort();
-    
-    // Check if lengths match
-    if (sortedUserAnswers.length !== correctAnswers.length) {
-      incorrectCount++;
-      currentStreak = 0;
-      return;
-    }
+    let isCorrect = false;
 
-    // Check if all user answers are in correct answers (strict equality after sort)
-    const isCorrect = sortedUserAnswers.every((ans, index) => ans === correctAnswers[index]);
+    if (question.type === 'match' || question.type === 'fill_blank') {
+      // Order matters: compare strictly by index without sorting
+      if (userAnswers.length === question.correctAnswers.length) {
+        isCorrect = userAnswers.every((ans, index) => ans === question.correctAnswers[index]);
+      }
+    } else {
+      // Order doesn't matter: sort both arrays before comparing
+      const sortedCorrect = [...question.correctAnswers].sort();
+      const sortedUser = [...userAnswers].sort();
+      
+      if (sortedUser.length === sortedCorrect.length) {
+        isCorrect = sortedUser.every((ans, index) => ans === sortedCorrect[index]);
+      }
+    }
     
     if (isCorrect) {
       correctCount++;

@@ -58,7 +58,41 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
 
   const updateQuestion = (index: number, field: keyof Question, value: any) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index] = { ...updatedQuestions[index], [field]: value };
+
+    if (field === 'type') {
+      const newType = value as QuestionType;
+      let newOptions: string[] = [];
+      let newCorrectAnswers: string[] = [];
+
+      switch (newType) {
+        case 'true_false':
+          newOptions = ['True', 'False'];
+          newCorrectAnswers = ['True'];
+          break;
+        case 'fill_blank':
+          newOptions = [];
+          newCorrectAnswers = [''];
+          break;
+        case 'match':
+          newOptions = ['Item A', 'Item B'];
+          newCorrectAnswers = ['Match A', 'Match B'];
+          break;
+        default: // mcq_single, mcq_multi
+          newOptions = ['Option 1', 'Option 2'];
+          newCorrectAnswers = ['Option 1'];
+          break;
+      }
+
+      updatedQuestions[index] = {
+        ...updatedQuestions[index],
+        type: newType,
+        options: newOptions,
+        correctAnswers: newCorrectAnswers,
+      };
+    } else {
+      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value };
+    }
+
     setQuestions(updatedQuestions);
   };
 
@@ -177,6 +211,7 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                               <option value="mcq_multi">Multi Choice</option>
                               <option value="true_false">True/False</option>
                               <option value="fill_blank">Fill in Blank</option>
+                              <option value="match">Match Pairs</option>
                             </select>
                           </div>
                           <div>
