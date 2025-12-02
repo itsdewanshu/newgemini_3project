@@ -241,7 +241,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   }
 
   // Active Quiz View
-  const currentAnswer = session.answers[currentQuestion.id]?.[0]; // Single choice for now
+  const currentAnswer = session.answers[currentQuestion.id];
   const isMarked = session.reviewList.includes(currentQuestion.id);
 
   return (

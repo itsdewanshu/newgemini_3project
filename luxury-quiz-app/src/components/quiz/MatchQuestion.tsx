@@ -109,17 +109,7 @@ const MatchQuestion: React.FC<MatchQuestionProps> = ({
     }
   }, [currentAnswer, rightItems]); // Be careful with dependencies to avoid reshuffling
 
-  // Fix: Only shuffle on mount if no currentAnswer
-  useEffect(() => {
-    if (!currentAnswer || currentAnswer.length === 0) {
-       const shuffled = [...rightItems].sort(() => Math.random() - 0.5);
-       setItems(shuffled);
-       // Optionally set this as the answer immediately so "unattempted" isn't ambiguous?
-       // But usually we wait for a drag.
-       onAnswer(shuffled);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+ 
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

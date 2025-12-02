@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 // Placeholder URLs - using Mixkit free previews for demonstration
 // In production, these should be local assets in the public/ folder
@@ -9,27 +9,47 @@ const SOUNDS = {
   hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3', // Soft tick
 };
 
+const initializeAudio = (url: string, volume: number) => {
+  try {
+    const audio = new Audio(url);
+    audio.volume = volume;
+    // Start loading the audio immediately
+    audio.preload = 'auto';
+    return audio;
+  } catch (error) {
+    console.error('Audio initialization failed for', url, error);
+    return null;
+  }
+};
+
 export const useSoundEffects = () => {
-  const playSound = useCallback((url: string, volume = 0.5) => {
-    try {
-      const audio = new Audio(url);
-      audio.volume = volume;
-      // Reset time to allow rapid replay
-      audio.currentTime = 0;
-      audio.play().catch((err) => {
-        // Ignore autoplay errors (common if user hasn't interacted yet)
-        // or if the URL is blocked/invalid
-        console.warn('Audio play failed:', err);
-      });
-    } catch (error) {
-      console.error('Audio initialization failed:', error);
+  // Use useMemo to initialize and cache the Audio objects once (PERFORMANCE FIX)
+  const audioRefs = useMemo(() => ({
+    click: initializeAudio(SOUNDS.click, 0.5),
+    correct: initializeAudio(SOUNDS.correct, 0.6),
+    incorrect: initializeAudio(SOUNDS.incorrect, 0.4),
+    hover: initializeAudio(SOUNDS.hover, 0.1),
+  }), []);
+
+  const playSound = useCallback((audio: HTMLAudioElement | null) => {
+    if (audio) {
+      try {
+        // Reset time and play to allow rapid, uninterrupted playback (PERFORMANCE FIX)
+        audio.currentTime = 0;
+        // Use a slight timeout to minimize risk of "The play() request was interrupted" error
+        setTimeout(() => {
+          audio.play().catch(() => {}); // Ignore autoplay errors silently
+        }, 1);
+      } catch (error) {
+        console.warn('Audio play failed:', error);
+      }
     }
   }, []);
 
-  const playClick = useCallback(() => playSound(SOUNDS.click, 0.5), [playSound]);
-  const playCorrect = useCallback(() => playSound(SOUNDS.correct, 0.6), [playSound]);
-  const playIncorrect = useCallback(() => playSound(SOUNDS.incorrect, 0.4), [playSound]);
-  const playHover = useCallback(() => playSound(SOUNDS.hover, 0.1), [playSound]);
+  const playClick = useCallback(() => playSound(audioRefs.click), [playSound, audioRefs.click]);
+  const playCorrect = useCallback(() => playSound(audioRefs.correct), [playSound, audioRefs.correct]);
+  const playIncorrect = useCallback(() => playSound(audioRefs.incorrect), [playSound, audioRefs.incorrect]);
+  const playHover = useCallback(() => playSound(audioRefs.hover), [playSound, audioRefs.hover]);
 
   return {
     playClick,
