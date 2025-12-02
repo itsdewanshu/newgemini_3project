@@ -20,6 +20,7 @@ function App() {
   // State to manage the current view
   const [currentScreen, setCurrentScreen] = useState<Screen>('HOME');
   const [pendingMode, setPendingMode] = useState<'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER' | null>(null);
+  const [pendingConfig, setPendingConfig] = useState<any | null>(null);
   
   // Theme management
   const { theme, switchTheme, mode } = useCurrentTheme();
@@ -35,9 +36,10 @@ function App() {
     switchTheme(modes[nextIndex]);
   };
 
-  const handleModeSelect = (selectedMode: 'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER') => {
-    console.log('Mode selected:', selectedMode);
+  const handleModeSelect = (selectedMode: 'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER', config?: any) => {
+    console.log('Mode selected:', selectedMode, config);
     setPendingMode(selectedMode);
+    setPendingConfig(config);
     switchTheme(selectedMode.toLowerCase() as ThemeMode);
     setCurrentScreen('IMPORT_EXPORT');
   };
@@ -46,7 +48,7 @@ function App() {
     console.log('Starting quiz:', id);
     const selectedQuiz = quizSets.find(q => q.id === id);
     if (selectedQuiz) {
-      setActiveQuizSet(selectedQuiz, pendingMode || 'PRACTICE');
+      setActiveQuizSet(selectedQuiz, pendingMode || 'PRACTICE', pendingConfig);
       setCurrentScreen('QUIZ');
     }
   };

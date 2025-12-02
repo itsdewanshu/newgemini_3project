@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCurrentTheme } from '../hooks/useCurrentTheme';
 
 interface HomeScreenProps {
-  onSelectMode: (mode: 'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER') => void;
+  onSelectMode: (mode: 'PRACTICE' | 'TEST' | 'ZEN' | 'CHALLENGER', config?: any) => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectMode }) => {
   const { theme } = useCurrentTheme();
+  const [showChallengerConfig, setShowChallengerConfig] = useState(false);
+  const [challengerTime, setChallengerTime] = useState(30);
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full py-6">
@@ -77,7 +79,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectMode }) => {
         <motion.button 
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => onSelectMode('CHALLENGER')}
+          onClick={() => setShowChallengerConfig(true)}
           className={`group relative w-full py-4 px-6 rounded-xl border transition-all duration-300 ease-out overflow-hidden bg-red-900/20 border-red-500/30 hover:border-red-500/60 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)]`}
         >
           <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-red-500`}></div>
@@ -88,6 +90,33 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectMode }) => {
         </motion.button>
 
       </div>
+
+      {showChallengerConfig && (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-zinc-900 border border-amber-500/30 p-6 rounded-2xl w-80 text-center">
+            <h3 className="text-xl font-bold text-amber-500 mb-4">Configure Timer</h3>
+            <div className="flex justify-center gap-3 mb-6">
+              {[10, 30, 60].map(time => (
+                <button 
+                  key={time}
+                  onClick={() => setChallengerTime(time)}
+                  className={`px-4 py-2 rounded-lg border ${challengerTime === time ? 'bg-amber-500 text-black border-amber-500' : 'border-white/20 text-white hover:bg-white/10'}`}
+                >{time}s</button>
+              ))}
+            </div>
+            <button 
+              onClick={() => {
+                onSelectMode('CHALLENGER', { timeLimit: challengerTime });
+              }}
+              className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-black font-bold py-3 rounded-xl"
+            >Start Challenge</button>
+            <button 
+              onClick={() => setShowChallengerConfig(false)}
+              className="mt-4 text-xs text-white/50 hover:text-white"
+            >Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

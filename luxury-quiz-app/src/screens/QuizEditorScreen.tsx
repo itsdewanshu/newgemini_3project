@@ -160,6 +160,15 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
     setQuestions(updatedQuestions);
   };
 
+  const toggleCorrectAnswer = (qIndex: number, option: string) => {
+    const currentQuestion = questions[qIndex];
+    const currentCorrect = currentQuestion.correctAnswers || [];
+    const updated = currentCorrect.includes(option)
+      ? currentCorrect.filter(o => o !== option)
+      : [...currentCorrect, option];
+    updateQuestion(qIndex, 'correctAnswers', updated);
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, qIndex: number) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -312,14 +321,13 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                               <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme.colors.text.secondary}`}>Matching Pairs</label>
                               <button onClick={() => addMatchPair(idx)} className={`text-[10px] text-blue-400 hover:text-blue-300`}>+ Add Pair</button>
                             </div>
+                            <p className="text-[10px] text-white/50 mb-3">
+                              Enter matching pairs (Left - Right). The app will shuffle them automatically during the quiz.
+                            </p>
                             <div className="space-y-2">
-                              <div className="flex gap-2 text-[10px] text-white/50 px-2">
-                                <span className="flex-1">Option (Left)</span>
-                                <span className="flex-1">Match (Right)</span>
-                                <span className="w-8"></span>
-                              </div>
                               {q.options?.map((opt, pIdx) => (
-                                <div key={pIdx} className="flex gap-2">
+                                <div key={pIdx} className="flex gap-2 items-center">
+                                  <span className={`text-[10px] font-bold ${theme.colors.text.secondary} w-4`}>{pIdx + 1}.</span>
                                   <input
                                     type="text"
                                     value={opt}
@@ -362,17 +370,19 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                           </div>
                         ) : (
                           <>
-                            {/* Standard Correct Answer Input (Hidden for Match/Hotspot) */}
-                            <div>
-                              <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Correct Answer</label>
-                              <input
-                                type="text"
-                                value={q.correctAnswers[0] || ''}
-                                onChange={(e) => updateQuestion(idx, 'correctAnswers', [e.target.value])}
-                                className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
-                                placeholder={q.type === 'true_false' ? 'True or False' : 'Exact match...'}
-                              />
-                            </div>
+                            {/* Standard Correct Answer Input (Hidden for Match/Hotspot/MCQ) */}
+                            {q.type !== 'mcq_single' && q.type !== 'mcq_multi' && (
+                              <div>
+                                <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Correct Answer</label>
+                                <input
+                                  type="text"
+                                  value={q.correctAnswers[0] || ''}
+                                  onChange={(e) => updateQuestion(idx, 'correctAnswers', [e.target.value])}
+                                  className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                                  placeholder={q.type === 'true_false' ? 'True or False' : 'Exact match...'}
+                                />
+                              </div>
+                            )}
 
                             {/* Options (for MCQs) */}
                             {(q.type === 'mcq_single' || q.type === 'mcq_multi') && (
@@ -383,7 +393,23 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                                 </div>
                                 <div className="space-y-2">
                                   {q.options?.map((opt, oIdx) => (
-                                    <div key={oIdx} className="flex gap-2">
+                                    <div key={oIdx} className="flex gap-2 items-center">
+                                      {q.type === 'mcq_multi' ? (
+                                        <input
+                                          type="checkbox"
+                                          checked={q.correctAnswers.includes(opt)}
+                                          onChange={() => toggleCorrectAnswer(idx, opt)}
+                                          className="mr-2 w-4 h-4 accent-blue-500"
+                                        />
+                                      ) : (
+                                        <input
+                                          type="radio"
+                                          name={`correct-${idx}`}
+                                          checked={q.correctAnswers.includes(opt)}
+                                          onChange={() => updateQuestion(idx, 'correctAnswers', [opt])}
+                                          className="mr-2 w-4 h-4 accent-blue-500"
+                                        />
+                                      )}
                                       <input
                                         type="text"
                                         value={opt}

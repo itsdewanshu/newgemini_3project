@@ -21,14 +21,15 @@ import {
 }
 
 const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
-  const { activeQuizSet, activeMode, clearActiveQuiz } = useQuizStore();
+  const { activeQuizSet, activeMode, activeConfig, clearActiveQuiz } = useQuizStore();
   const { theme } = useCurrentTheme();
   const { playClick, playCorrect, playIncorrect } = useSoundEffects();
   const [session, setSession] = useState<QuizSession | null>(null);
   const [result, setResult] = useState<QuizResult | null>(null);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(activeConfig?.timeLimit || 30);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [markedQuestions, setMarkedQuestions] = useState<Set<string>>(new Set());
 
   // Initialize session on mount
   useEffect(() => {
@@ -93,7 +94,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
   useEffect(() => {
     if (activeMode !== 'CHALLENGER' || !session || !currentQuestion || result || isProcessing) return;
 
-    setTimeLeft(30); // Reset timer on question change
+    setTimeLeft(activeConfig?.timeLimit || 30); // Reset timer on question change
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -149,34 +150,6 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
     
     playClick();
 
-    // Immediate feedback sound for Practice Mode
-    if (activeMode === 'PRACTICE' && currentQuestion) {
-      let isCorrect = false;
-      
-      if (currentQuestion.type === 'hotspot') {
-        isCorrect = option === 'correct';
-      } else if (Array.isArray(option)) {
-        // Array comparison (Match or Multi)
-        if (currentQuestion.type === 'match') {
-          // Strict order for match
-          isCorrect = option.length === currentQuestion.correctAnswers.length &&
-                      option.every((val, i) => val === currentQuestion.correctAnswers[i]);
-        } else {
-          // Sort for multi-choice
-          const sortedOpt = [...option].sort();
-          const sortedCorr = [...currentQuestion.correctAnswers].sort();
-          isCorrect = sortedOpt.length === sortedCorr.length &&
-                      sortedOpt.every((val, i) => val === sortedCorr[i]);
-        }
-      } else {
-        // Single value comparison
-        isCorrect = currentQuestion.correctAnswers.includes(option);
-      }
-
-      if (isCorrect) playCorrect();
-      else playIncorrect();
-    }
-
     setSession(prev => prev ? answerQuestion(prev, currentQuestion!.id, option) : null);
   };
 
@@ -197,11 +170,16 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
     setIsPaletteOpen(false);
   };
 
+  const toggleMarkForReview = () => {
+    if (!currentQuestion) return;
+    const newSet = new Set(markedQuestions);
+    if (newSet.has(currentQuestion.id)) newSet.delete(currentQuestion.id);
+    else newSet.add(currentQuestion.id);
+    setMarkedQuestions(newSet);
+  };
+
   const handleMarkReview = () => {
-    if (isProcessing) return;
-    if (session && currentQuestion) {
-      setSession(markForReview(session, currentQuestion.id));
-    }
+    toggleMarkForReview();
   };
 
   const handleSubmit = () => {
@@ -242,7 +220,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
 
   // Active Quiz View
   const currentAnswer = session.answers[currentQuestion.id];
-  const isMarked = session.reviewList.includes(currentQuestion.id);
+  const isMarked = markedQuestions.has(currentQuestion.id);
 
   return (
     <div className="flex flex-col h-full w-full animate-fade-in relative overflow-hidden">
@@ -309,34 +287,36 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
                 </button>
               </div>
               
-              <div className="grid grid-cols-4 gap-2">
-                {session.questionIds.map((id, idx) => {
-                  const isAnswered = !!session.answers[id];
-                  const isReview = session.reviewList.includes(id);
-                  const isCurrent = idx === session.currentIndex;
-                  
-                  let bgClass = 'bg-white/5 text-slate-400 border-transparent';
-                  if (isCurrent) bgClass = `${theme.colors.button.primary} text-white border-white/20`;
-                  else if (isReview) bgClass = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-                  else if (isAnswered) bgClass = 'bg-green-500/20 text-green-400 border-green-500/30';
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-4 mt-4">
+                <h3 className="text-xs uppercase tracking-wider text-white/50 mb-3">Question Palette</h3>
+                <div className="grid grid-cols-5 gap-2">
+                  {activeQuizSet.questions.map((q, idx) => {
+                    const isAnswered = !!session.answers[q.id];
+                    const isMarked = markedQuestions.has(q.id);
+                    const isCurrent = session.currentIndex === idx;
+                    
+                    // NTA Style Logic:
+                    // Green = Answered, Red = Not Answered (but visited? simplified here to default), Purple = Marked
+                    let bgClass = "bg-white/5 border-white/10 text-white/50"; // Not Visited/Default
+                    if (isAnswered) bgClass = "bg-emerald-500/20 border-emerald-500 text-emerald-500";
+                    if (isMarked && !isAnswered) bgClass = "bg-purple-500/20 border-purple-500 text-purple-500";
+                    if (isMarked && isAnswered) bgClass = "bg-purple-500/20 border-purple-500 text-purple-500 relative"; // Needs green dot
+                    if (isCurrent) bgClass += " ring-1 ring-white shadow-[0_0_10px_rgba(255,255,255,0.3)]";
 
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => handleGoTo(idx)}
-                      className={`aspect-square rounded-lg text-xs font-bold border flex items-center justify-center transition-all ${bgClass}`}
-                    >
-                      {idx + 1}
-                    </button>
-                  );
-                })}
-              </div>
-              
-              <div className="mt-8 space-y-2 text-xs text-slate-500">
-                <div className="flex items-center gap-2"><div className={`w-3 h-3 rounded bg-white/5`}></div> Not Visited</div>
-                <div className="flex items-center gap-2"><div className={`w-3 h-3 rounded bg-green-500/20 border border-green-500/30`}></div> Answered</div>
-                <div className="flex items-center gap-2"><div className={`w-3 h-3 rounded bg-amber-500/20 border border-amber-500/30`}></div> Review</div>
-                <div className="flex items-center gap-2"><div className={`w-3 h-3 rounded ${theme.colors.button.primary}`}></div> Current</div>
+                    return (
+                      <button 
+                        key={q.id} 
+                        onClick={() => handleGoTo(idx)}
+                        className={`h-8 w-8 rounded-lg text-xs font-medium border flex items-center justify-center transition-all ${bgClass}`}
+                      >
+                        {idx + 1}
+                        {isMarked && isAnswered && <div className="absolute top-0 right-0 w-2 h-2 bg-emerald-500 rounded-full" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Add "Mark for Review" button near Next/Prev controls */}
+                <button onClick={toggleMarkForReview} className="mt-4 w-full py-2 text-xs border border-purple-500/50 text-purple-400 rounded-lg hover:bg-purple-500/10">Mark for Review</button>
               </div>
             </motion.div>
           </>
