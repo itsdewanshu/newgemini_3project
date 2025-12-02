@@ -137,13 +137,6 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
     setQuestions(updatedQuestions);
   };
 
-  const handleHotspotClick = (e: React.MouseEvent<HTMLImageElement>, qIndex: number) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    updateQuestion(qIndex, 'hotspotTarget', { x, y });
-  };
-
   const updateOption = (qIndex: number, oIndex: number, value: string) => {
     const updatedQuestions = [...questions];
     const newOptions = [...(updatedQuestions[qIndex].options || [])];
@@ -332,31 +325,18 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                         ) : q.type === 'hotspot' ? (
                           <div>
                             <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${theme.colors.text.secondary}`}>Set Hotspot Target</label>
-                            {q.mediaUrl ? (
-                              <div className="relative w-full aspect-video bg-black/50 rounded-lg overflow-hidden border border-white/10 group cursor-crosshair">
-                                <img 
-                                  src={q.mediaUrl} 
-                                  alt="Hotspot Target" 
-                                  className="w-full h-full object-contain"
-                                  onClick={(e) => handleHotspotClick(e, idx)}
-                                />
-                                {q.hotspotTarget && (
-                                  <div 
-                                    className="absolute w-6 h-6 -ml-3 -mt-3 border-2 border-red-500 rounded-full bg-red-500/30 pointer-events-none shadow-[0_0_10px_rgba(239,68,68,0.8)]"
-                                    style={{ left: `${q.hotspotTarget.x}%`, top: `${q.hotspotTarget.y}%` }}
-                                  >
-                                    <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-red-500 rounded-full transform -translate-x-1/2 -translate-y-1/2" />
-                                  </div>
-                                )}
-                                <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded pointer-events-none">
-                                  Click image to set target
+                            <div className={`p-6 text-center border border-dashed border-white/20 rounded-xl bg-white/5 ${theme.colors.text.secondary}`}>
+                              <p className="text-xs mb-2">Click the image in the <strong>Live Preview</strong> (right column) to set the target point.</p>
+                              {q.hotspotTarget ? (
+                                <div className="text-[10px] font-mono text-green-400 bg-green-400/10 py-1 px-2 rounded inline-block">
+                                  Target: {Math.round(q.hotspotTarget.x)}%, {Math.round(q.hotspotTarget.y)}%
                                 </div>
-                              </div>
-                            ) : (
-                              <div className="p-4 text-center border border-dashed border-white/20 rounded-lg text-xs text-white/40">
-                                Please enter a Media URL above to set the hotspot.
-                              </div>
-                            )}
+                              ) : (
+                                <div className="text-[10px] text-white/30 italic">
+                                  No target set yet
+                                </div>
+                              )}
+                            </div>
                           </div>
                         ) : (
                           <>

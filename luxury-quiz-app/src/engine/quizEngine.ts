@@ -114,18 +114,18 @@ export const calculateScore = (session: QuizSession, questions: Question[]): Qui
 
     let isCorrect = false;
 
-    if (question.type === 'match' || question.type === 'fill_blank') {
-      // Order matters: compare strictly by index without sorting
-      if (userAnswers.length === question.correctAnswers.length) {
-        isCorrect = userAnswers.every((ans, index) => ans === question.correctAnswers[index]);
-      }
-    } else {
+    if (question.type === 'mcq_multi') {
       // Order doesn't matter: sort both arrays before comparing
       const sortedCorrect = [...question.correctAnswers].sort();
       const sortedUser = [...userAnswers].sort();
       
       if (sortedUser.length === sortedCorrect.length) {
         isCorrect = sortedUser.every((ans, index) => ans === sortedCorrect[index]);
+      }
+    } else {
+      // Order matters (match, fill_blank) or single answer (hotspot, mcq_single, etc.)
+      if (userAnswers.length === question.correctAnswers.length) {
+        isCorrect = userAnswers.every((ans, index) => ans === question.correctAnswers[index]);
       }
     }
     
