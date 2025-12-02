@@ -61,7 +61,7 @@ function App() {
   const renderScreen = () => {
     switch (currentScreen) {
       case 'HOME': return <HomeScreen onSelectMode={handleModeSelect} />;
-      case 'LIBRARY': return <QuizLibraryScreen />;
+      case 'LIBRARY': return <QuizLibraryScreen onStartQuiz={handleStartQuiz} />;
       case 'QUIZ': return <QuizScreen onExit={() => setCurrentScreen('IMPORT_EXPORT')} />;
       case 'SETTINGS': return <SettingsScreen />;
       case 'EDITOR': return <QuizEditorScreen onExit={() => setCurrentScreen('IMPORT_EXPORT')} />;
@@ -95,7 +95,9 @@ function App() {
       </div>
 
       {/* Main Content Container */}
-      <main className={`w-full ${currentScreen === 'EDITOR' ? 'max-w-5xl' : 'max-w-lg'} min-h-[400px] transition-all duration-700 ease-out relative overflow-hidden rounded-3xl border p-10 ${theme.colors.card.bg} ${theme.colors.card.border} ${theme.colors.card.shadow} ${theme.colors.card.backdrop}`}>
+      <main className={`w-full transition-all duration-700 ease-out relative overflow-hidden rounded-3xl border p-6 md:p-10 ${
+        currentScreen === 'HOME' ? 'max-w-lg min-h-[500px]' : 'max-w-6xl min-h-[80vh]'
+      } ${theme.colors.card.bg} ${theme.colors.card.border} ${theme.colors.card.shadow} ${theme.colors.card.backdrop}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentScreen}

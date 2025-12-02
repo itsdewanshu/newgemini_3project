@@ -23,7 +23,12 @@ const ImportExportScreen: React.FC<ImportExportScreenProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const filteredQuizzes = quizSets.filter(q => 
+    q.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleFile = async (file: File) => {
     if (!file) return;
@@ -68,6 +73,18 @@ const ImportExportScreen: React.FC<ImportExportScreenProps> = ({
       <div className="text-center space-y-1">
         <h2 className={`text-2xl font-bold ${theme.colors.text.primary}`}>Quiz Library</h2>
         <p className={`text-xs ${theme.colors.text.secondary}`}>Import new challenges or manage your collection</p>
+      </div>
+
+      {/* Search Input */}
+      <div className="relative mb-4">
+        <input 
+          type="text" 
+          placeholder="Search your quizzes..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={`w-full p-3 pl-10 rounded-xl border bg-black/20 ${theme.colors.text.primary} ${theme.colors.card.border} focus:outline-none focus:border-white/30 transition-colors`}
+        />
+        <svg className="w-5 h-5 absolute left-3 top-3.5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
       </div>
 
       {/* Upload Zone */}
@@ -117,13 +134,13 @@ const ImportExportScreen: React.FC<ImportExportScreenProps> = ({
       </button>
 
       {/* Quiz List */}
-      <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-3 min-h-[200px]">
-        {quizSets.length === 0 ? (
+      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3 h-[400px] md:h-auto">
+        {filteredQuizzes.length === 0 ? (
           <div className={`text-center py-8 text-sm ${theme.colors.text.secondary}`}>
-            No quizzes found. Import one to get started.
+            {searchQuery ? 'No quizzes match your search.' : 'No quizzes found. Import one to get started.'}
           </div>
         ) : (
-          quizSets.map((quiz) => (
+          filteredQuizzes.map((quiz) => (
             <div
               key={quiz.id}
               className={`flex items-center justify-between p-3 rounded-xl border transition-all ${theme.colors.card.bg} ${theme.colors.card.border} hover:border-opacity-50`}

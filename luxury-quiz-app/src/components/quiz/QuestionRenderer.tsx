@@ -164,14 +164,14 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         {question.questionText}
       </h3>
 
-      {(question.type === 'mcq_single' || question.type === 'media') && renderMCQ()}
+      {(question.type === 'mcq_single' || question.type === 'mcq_multi' || question.type === 'media') && renderMCQ()}
       {question.type === 'true_false' && renderTrueFalse()}
       {question.type === 'fill_blank' && renderFillBlank()}
       {question.type === 'match' && renderMatch()}
       {question.type === 'hotspot' && renderHotspot()}
       
       {/* Fallback for unknown types */}
-      {!['mcq_single', 'true_false', 'fill_blank', 'match', 'media', 'hotspot'].includes(question.type) && (
+      {!['mcq_single', 'mcq_multi', 'true_false', 'fill_blank', 'match', 'media', 'hotspot'].includes(question.type) && (
         <div className="text-red-400">Unsupported question type: {question.type}</div>
       )}
     </div>

@@ -160,6 +160,17 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
     setQuestions(updatedQuestions);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, qIndex: number) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateQuestion(qIndex, 'mediaUrl', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const activeQuestion = activeQuestionIndex >= 0 ? questions[activeQuestionIndex] : null;
 
   return (
@@ -250,6 +261,17 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                               className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
                               placeholder="https://..."
                             />
+                            <div className="mt-2 text-[10px] text-right">
+                              <label className="cursor-pointer text-blue-400 hover:text-blue-300">
+                                <span>Or upload local image</span>
+                                <input 
+                                  type="file" 
+                                  accept="image/*" 
+                                  className="hidden" 
+                                  onChange={(e) => handleImageUpload(e, idx)} 
+                                />
+                              </label>
+                            </div>
                           </div>
                           <div>
                             <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Media Type</label>
