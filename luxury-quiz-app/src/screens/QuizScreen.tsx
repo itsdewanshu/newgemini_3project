@@ -5,7 +5,6 @@ import { useCurrentTheme } from '../hooks/useCurrentTheme';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import ResultsScreen from './ResultsScreen';
 import QuestionRenderer from '../components/quiz/QuestionRenderer';
-import ZenParticles from '../components/layout/ZenParticles';
 import { 
   createQuizSession, 
   answerQuestion, 
@@ -117,6 +116,14 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
     return () => clearInterval(timer);
   }, [session?.currentIndex, activeMode, result, isProcessing]);
 
+  // Sound effect on result
+  useEffect(() => {
+    if (result) {
+      if (result.score >= 50) playCorrect();
+      else playIncorrect();
+    }
+  }, [result, playCorrect, playIncorrect]);
+
   if (!activeQuizSet) {
     return (
       <div className="flex flex-col items-center justify-center h-full animate-fade-in gap-4">
@@ -213,14 +220,6 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
     }
   };
 
-  // Sound effect on result
-  useEffect(() => {
-    if (result) {
-      if (result.score >= 50) playCorrect();
-      else playIncorrect();
-    }
-  }, [result, playCorrect, playIncorrect]);
-
   // Result View
   if (result) {
     return (
@@ -247,7 +246,6 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ onExit }) => {
 
   return (
     <div className="flex flex-col h-full w-full animate-fade-in relative overflow-hidden">
-      {activeMode === 'ZEN' && <ZenParticles />}
       
       {/* Header */}
       <div className="flex justify-between items-center mb-6 z-10">

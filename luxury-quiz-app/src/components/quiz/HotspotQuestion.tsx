@@ -7,6 +7,7 @@ interface HotspotQuestionProps {
   targetY: number; // Percentage 0-100
   onAnswer: (result: string) => void;
   disabled?: boolean;
+  onHotspotClick?: (x: number, y: number) => void;
 }
 
 const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
@@ -15,6 +16,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
   targetY,
   onAnswer,
   disabled = false,
+  onHotspotClick,
 }) => {
   const { theme } = useCurrentTheme();
   const imageRef = useRef<HTMLImageElement>(null);
@@ -22,11 +24,19 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
   const [result, setResult] = useState<'correct' | 'incorrect' | null>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (disabled || !imageRef.current) return;
+    if (!imageRef.current) return;
+    
+    // Allow click if not disabled OR if onHotspotClick is provided (editor mode)
+    if (disabled && !onHotspotClick) return;
 
     const rect = imageRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    if (onHotspotClick) {
+      onHotspotClick(x, y);
+      return;
+    }
 
     setMarker({ x, y });
 
@@ -44,7 +54,7 @@ const HotspotQuestion: React.FC<HotspotQuestionProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       <div 
-        className={`relative inline-block rounded-xl overflow-hidden shadow-2xl border border-white/10 ${disabled ? 'cursor-default' : 'cursor-crosshair'}`}
+        className={`relative inline-block rounded-xl overflow-hidden shadow-2xl border border-white/10 ${disabled && !onHotspotClick ? 'cursor-default' : 'cursor-crosshair'}`}
         onClick={handleClick}
       >
         <img

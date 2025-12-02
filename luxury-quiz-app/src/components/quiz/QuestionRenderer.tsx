@@ -10,6 +10,7 @@ interface QuestionRendererProps {
   currentAnswer?: string | string[];
   onAnswer: (answer: string | string[]) => void;
   disabled?: boolean;
+  onHotspotClick?: (x: number, y: number) => void;
 }
 
 const QuestionRenderer: React.FC<QuestionRendererProps> = ({
@@ -17,6 +18,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   currentAnswer,
   onAnswer,
   disabled = false,
+  onHotspotClick,
 }) => {
   const { theme } = useCurrentTheme();
 
@@ -151,6 +153,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       targetY={question.hotspotTarget?.y || 0}
       onAnswer={(result) => onAnswer(result === 'correct' ? 'correct' : 'incorrect')}
       disabled={disabled}
+      onHotspotClick={onHotspotClick}
     />
   );
 

@@ -63,6 +63,7 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
       const newType = value as QuestionType;
       let newOptions: string[] = [];
       let newCorrectAnswers: string[] = [];
+      let newHotspotTarget = undefined;
 
       switch (newType) {
         case 'true_false':
@@ -77,7 +78,12 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
           newOptions = ['Item A', 'Item B'];
           newCorrectAnswers = ['Match A', 'Match B'];
           break;
-        default: // mcq_single, mcq_multi
+        case 'hotspot':
+          newOptions = [];
+          newCorrectAnswers = ['correct']; // Dummy answer for logic
+          newHotspotTarget = { x: 50, y: 50 };
+          break;
+        default: // mcq_single, mcq_multi, media
           newOptions = ['Option 1', 'Option 2'];
           newCorrectAnswers = ['Option 1'];
           break;
@@ -88,12 +94,54 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
         type: newType,
         options: newOptions,
         correctAnswers: newCorrectAnswers,
+        hotspotTarget: newHotspotTarget,
       };
     } else {
       updatedQuestions[index] = { ...updatedQuestions[index], [field]: value };
     }
 
     setQuestions(updatedQuestions);
+  };
+
+  const updateMatchPair = (qIndex: number, pairIndex: number, side: 'left' | 'right', value: string) => {
+    const updatedQuestions = [...questions];
+    if (side === 'left') {
+      const newOptions = [...(updatedQuestions[qIndex].options || [])];
+      newOptions[pairIndex] = value;
+      updatedQuestions[qIndex].options = newOptions;
+    } else {
+      const newCorrect = [...updatedQuestions[qIndex].correctAnswers];
+      newCorrect[pairIndex] = value;
+      updatedQuestions[qIndex].correctAnswers = newCorrect;
+    }
+    setQuestions(updatedQuestions);
+  };
+
+  const addMatchPair = (qIndex: number) => {
+    const updatedQuestions = [...questions];
+    const newOptions = [...(updatedQuestions[qIndex].options || []), 'New Item'];
+    const newCorrect = [...updatedQuestions[qIndex].correctAnswers, 'New Match'];
+    updatedQuestions[qIndex].options = newOptions;
+    updatedQuestions[qIndex].correctAnswers = newCorrect;
+    setQuestions(updatedQuestions);
+  };
+
+  const removeMatchPair = (qIndex: number, pairIndex: number) => {
+    const updatedQuestions = [...questions];
+    const newOptions = [...(updatedQuestions[qIndex].options || [])];
+    const newCorrect = [...updatedQuestions[qIndex].correctAnswers];
+    newOptions.splice(pairIndex, 1);
+    newCorrect.splice(pairIndex, 1);
+    updatedQuestions[qIndex].options = newOptions;
+    updatedQuestions[qIndex].correctAnswers = newCorrect;
+    setQuestions(updatedQuestions);
+  };
+
+  const handleHotspotClick = (e: React.MouseEvent<HTMLImageElement>, qIndex: number) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    updateQuestion(qIndex, 'hotspotTarget', { x, y });
   };
 
   const updateOption = (qIndex: number, oIndex: number, value: string) => {
@@ -224,53 +272,56 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                           </div>
                         </div>
 
-                        {/* Type & Correct Answer */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Type</label>
-                            <select
-                              value={q.type}
-                              onChange={(e) => updateQuestion(idx, 'type', e.target.value as QuestionType)}
-                              className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
-                            >
-                              <option value="mcq_single">Single Choice</option>
-                              <option value="mcq_multi">Multi Choice</option>
-                              <option value="true_false">True/False</option>
-                              <option value="fill_blank">Fill in Blank</option>
-                              <option value="match">Match Pairs</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Correct Answer</label>
-                            <input
-                              type="text"
-                              value={q.correctAnswers[0] || ''}
-                              onChange={(e) => updateQuestion(idx, 'correctAnswers', [e.target.value])}
-                              className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
-                              placeholder="Exact match..."
-                            />
-                          </div>
+                        {/* Type Selection */}
+                        <div>
+                          <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Type</label>
+                          <select
+                            value={q.type}
+                            onChange={(e) => updateQuestion(idx, 'type', e.target.value as QuestionType)}
+                            className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                          >
+                            <option value="mcq_single">Single Choice</option>
+                            <option value="mcq_multi">Multi Choice</option>
+                            <option value="true_false">True/False</option>
+                            <option value="fill_blank">Fill in Blank</option>
+                            <option value="match">Match Pairs</option>
+                            <option value="hotspot">Hotspot (Image)</option>
+                            <option value="media">Media Question</option>
+                          </select>
                         </div>
 
-                        {/* Options (for MCQs) */}
-                        {(q.type === 'mcq_single' || q.type === 'mcq_multi') && (
+                        {/* Dynamic Inputs based on Type */}
+                        {q.type === 'match' ? (
                           <div>
                             <div className="flex justify-between items-center mb-2">
-                              <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme.colors.text.secondary}`}>Options</label>
-                              <button onClick={() => addOption(idx)} className={`text-[10px] text-blue-400 hover:text-blue-300`}>+ Add Option</button>
+                              <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme.colors.text.secondary}`}>Matching Pairs</label>
+                              <button onClick={() => addMatchPair(idx)} className={`text-[10px] text-blue-400 hover:text-blue-300`}>+ Add Pair</button>
                             </div>
                             <div className="space-y-2">
-                              {q.options?.map((opt, oIdx) => (
-                                <div key={oIdx} className="flex gap-2">
+                              <div className="flex gap-2 text-[10px] text-white/50 px-2">
+                                <span className="flex-1">Option (Left)</span>
+                                <span className="flex-1">Match (Right)</span>
+                                <span className="w-8"></span>
+                              </div>
+                              {q.options?.map((opt, pIdx) => (
+                                <div key={pIdx} className="flex gap-2">
                                   <input
                                     type="text"
                                     value={opt}
-                                    onChange={(e) => updateOption(idx, oIdx, e.target.value)}
+                                    onChange={(e) => updateMatchPair(idx, pIdx, 'left', e.target.value)}
                                     className={`flex-1 p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                                    placeholder="Left Item"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={q.correctAnswers[pIdx] || ''}
+                                    onChange={(e) => updateMatchPair(idx, pIdx, 'right', e.target.value)}
+                                    className={`flex-1 p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                                    placeholder="Right Match"
                                   />
                                   <button 
-                                    onClick={() => removeOption(idx, oIdx)}
-                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded"
+                                    onClick={() => removeMatchPair(idx, pIdx)}
+                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded w-8 flex items-center justify-center"
                                   >
                                     ×
                                   </button>
@@ -278,6 +329,77 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                               ))}
                             </div>
                           </div>
+                        ) : q.type === 'hotspot' ? (
+                          <div>
+                            <label className={`block text-[10px] font-bold uppercase tracking-wider mb-2 ${theme.colors.text.secondary}`}>Set Hotspot Target</label>
+                            {q.mediaUrl ? (
+                              <div className="relative w-full aspect-video bg-black/50 rounded-lg overflow-hidden border border-white/10 group cursor-crosshair">
+                                <img 
+                                  src={q.mediaUrl} 
+                                  alt="Hotspot Target" 
+                                  className="w-full h-full object-contain"
+                                  onClick={(e) => handleHotspotClick(e, idx)}
+                                />
+                                {q.hotspotTarget && (
+                                  <div 
+                                    className="absolute w-6 h-6 -ml-3 -mt-3 border-2 border-red-500 rounded-full bg-red-500/30 pointer-events-none shadow-[0_0_10px_rgba(239,68,68,0.8)]"
+                                    style={{ left: `${q.hotspotTarget.x}%`, top: `${q.hotspotTarget.y}%` }}
+                                  >
+                                    <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-red-500 rounded-full transform -translate-x-1/2 -translate-y-1/2" />
+                                  </div>
+                                )}
+                                <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded pointer-events-none">
+                                  Click image to set target
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-4 text-center border border-dashed border-white/20 rounded-lg text-xs text-white/40">
+                                Please enter a Media URL above to set the hotspot.
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <>
+                            {/* Standard Correct Answer Input (Hidden for Match/Hotspot) */}
+                            <div>
+                              <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1 ${theme.colors.text.secondary}`}>Correct Answer</label>
+                              <input
+                                type="text"
+                                value={q.correctAnswers[0] || ''}
+                                onChange={(e) => updateQuestion(idx, 'correctAnswers', [e.target.value])}
+                                className={`w-full p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                                placeholder={q.type === 'true_false' ? 'True or False' : 'Exact match...'}
+                              />
+                            </div>
+
+                            {/* Options (for MCQs) */}
+                            {(q.type === 'mcq_single' || q.type === 'mcq_multi') && (
+                              <div>
+                                <div className="flex justify-between items-center mb-2">
+                                  <label className={`block text-[10px] font-bold uppercase tracking-wider ${theme.colors.text.secondary}`}>Options</label>
+                                  <button onClick={() => addOption(idx)} className={`text-[10px] text-blue-400 hover:text-blue-300`}>+ Add Option</button>
+                                </div>
+                                <div className="space-y-2">
+                                  {q.options?.map((opt, oIdx) => (
+                                    <div key={oIdx} className="flex gap-2">
+                                      <input
+                                        type="text"
+                                        value={opt}
+                                        onChange={(e) => updateOption(idx, oIdx, e.target.value)}
+                                        className={`flex-1 p-2 rounded bg-black/20 border border-white/10 ${theme.colors.text.primary} text-sm focus:outline-none focus:border-white/30`}
+                                      />
+                                      <button 
+                                        onClick={() => removeOption(idx, oIdx)}
+                                        className="p-2 text-red-400 hover:bg-red-500/10 rounded"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     )}
@@ -304,9 +426,10 @@ const QuizEditorScreen: React.FC<QuizEditorScreenProps> = ({ onExit }) => {
                 
                 <QuestionRenderer 
                   question={activeQuestion}
-                  currentAnswer={activeQuestion.correctAnswers[0]} // Preview with correct answer selected
+                  currentAnswer={activeQuestion.type === 'match' ? activeQuestion.correctAnswers : activeQuestion.correctAnswers[0]}
                   onAnswer={() => {}}
                   disabled={true}
+                  onHotspotClick={(x, y) => updateQuestion(activeQuestionIndex, 'hotspotTarget', { x, y })}
                 />
               </div>
             ) : (
