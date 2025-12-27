@@ -1,189 +1,115 @@
-# Luxury Quiz Engine
+# Luxury Quiz App
 
-A premium, fully frontend quiz web app built with **React**, **Vite**, **TypeScript**, and **Tailwind CSS**.  
-Designed with glassmorphism, black–gold premium, and neon zen aesthetics, featuring smooth cinematic transitions and a luxury user experience.
+A sophisticated and immersive quiz application built with modern web technologies. This app offers a premium user experience with fluid animations, multiple game modes, and a robust quiz management system.
 
----
+## 🌟 Features
 
-## ✨ Features
+### 🎮 Game Modes
+- **Practice Mode:** Learn at your own pace with immediate feedback.
+- **Test Mode:** Simulate a real exam environment.
+- **Zen Mode:** A relaxing, particle-enhanced experience for stress-free learning.
+- **Challenger Mode:** High-stakes mode for competitive users.
 
-- **Frontend-Only**: No backend, no network calls. All data is stored in the browser using IndexedDB.
-- **Quiz Management**: Import, create, delete, and take quiz sets.
-- **Multiple Modes**: Practice, Test, and Zen modes, each with unique themes.
-- **Animated UI**: Framer Motion powers smooth screen transitions and interactive feedback.
-- **Question Palette**: Collapsible, animated palette for quick navigation and review.
-- **Keyboard Shortcuts**: Fast navigation (N/P/M/Enter/Esc) for power users.
-- **Results & Analytics**: Animated score, breakdown, and feedback after each quiz.
-- **Responsive & Accessible**: Works beautifully on desktop and mobile.
+### 🧩 Diverse Question Types
+- **Multiple Choice:** Single and multiple correct answers.
+- **True/False:** Quick boolean questions.
+- **Fill in the Blank:** Test recall memory.
+- **Matching:** Interactive drag-and-drop matching questions.
+- **Hotspot:** Visual questions requiring users to click specific areas on an image.
+- **Media:** Questions incorporating audio, video, or images.
 
----
+### 🛠️ Tools & Management
+- **Quiz Editor:** Create and modify quizzes directly within the app.
+- **Import/Export:** Share quizzes or backup your data using JSON.
+- **Quiz Library:** Organize and browse your collection of quizzes.
+- **Results & Analytics:** Detailed breakdown of your performance.
 
-## 🗂️ Project Structure
+### 🎨 UI/UX
+- **Dynamic Theming:** The interface adapts its color scheme and style based on the selected game mode.
+- **Smooth Animations:** Powered by `framer-motion` for a polished feel.
+- **Responsive Design:** Optimized for various screen sizes.
+
+## 🏗️ Tech Stack
+
+- **Frontend Framework:** [React](https://reactjs.org/)
+- **Build Tool:** [Vite](https://vitejs.dev/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Drag & Drop:** [@dnd-kit](https://dndkit.com/)
+- **Storage:** Native [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) for local data persistence.
+
+## 📂 Project Structure
 
 ```
 luxury-quiz-app/
 ├── src/
-│   ├── assets/                # Images, icons, etc.
-│   ├── components/            # Reusable UI components
-│   ├── db/                    # IndexedDB logic (quizDb.ts)
-│   ├── engine/                # Pure quiz logic (quizEngine.ts)
-│   ├── hooks/                 # Custom React hooks (useQuizBank, useCurrentTheme)
-│   ├── screens/               # Main app screens (HomeScreen, QuizScreen, etc.)
-│   ├── store/                 # React Context for quiz session state (quizStore.tsx)
-│   ├── theme/                 # Theme config and tokens (themeConfig.ts)
-│   ├── types/                 # TypeScript types (quizTypes.ts)
-│   ├── utils/                 # Utilities (quizImporter.ts)
-│   ├── App.tsx                # Main app component and screen router
-│   └── main.tsx               # Entry point
-├── public/
-│   └── vite.svg
-├── tailwind.config.js
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+│   ├── assets/          # Static assets and global styles
+│   ├── components/      # Reusable UI components
+│   │   ├── common/      # Generic components (Buttons, Cards)
+│   │   ├── layout/      # Layout components (ZenParticles)
+│   │   └── quiz/        # Quiz-specific components (Renderers, Cards)
+│   ├── db/              # IndexedDB configuration and helpers
+│   ├── engine/          # Core quiz logic and scoring engine
+│   ├── hooks/           # Custom React hooks (Theme, QuizBank)
+│   ├── pages/           # Page components (if using routing)
+│   ├── screens/         # Main application screens (Home, Quiz, Editor)
+│   ├── services/        # External services or API calls
+│   ├── store/           # State management (Context/Zustand)
+│   ├── theme/           # Theme configuration and definitions
+│   ├── types/           # TypeScript type definitions
+│   └── utils/           # Helper functions (Importers, Formatters)
+├── public/              # Public static files
+└── ...config files      # Vite, Tailwind, TypeScript configs
 ```
 
----
+## 🚀 Getting Started
 
-## 🚀 Quick Start (in Codespaces or locally)
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-1. **Install dependencies:**
-   ```sh
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. Navigate to the project directory:
+   ```bash
+   cd luxury-quiz-app
+   ```
+
+3. Install dependencies:
+   ```bash
    npm install
    ```
 
-2. **Start the dev server:**
-   ```sh
-   npm run dev
-   ```
-   - In Codespaces, the preview should open automatically.
-   - Locally, open the printed URL in your browser, or use:
-     ```sh
-     "$BROWSER" http://localhost:5173
-     ```
+### Running the App
 
----
+Start the development server:
+```bash
+npm run dev
+```
 
-## 🧩 Core Technologies
+Build for production:
+```bash
+npm run build
+```
 
-- **React** (with hooks and context)
-- **TypeScript** (strict typing)
-- **Vite** (fast dev/build)
-- **Tailwind CSS** (utility-first styling)
-- **Framer Motion** (animations)
-- **IndexedDB** (browser storage, via native API)
-- **No backend** (all logic and data is local)
+Preview the production build:
+```bash
+npm run serve
+```
 
----
+## 📖 Usage
 
-## 🏗️ Main Features & Screens
+1. **Select a Mode:** Choose from Practice, Test, Zen, or Challenger on the Home screen.
+2. **Manage Quizzes:** Go to the Import/Export screen to add new quizzes or create one in the Editor.
+3. **Take a Quiz:** Select a quiz from the Library and start answering questions.
+4. **Review:** Check your results and learn from the explanations.
 
-### 1. **HomeScreen**
-- Luxury dashboard with animated title and mode selection (Practice, Test, Zen).
-- Theme switcher in the top-right.
+## 📄 License
 
-### 2. **QuizLibraryScreen**
-- Lists all quiz sets stored in IndexedDB.
-- Start or delete any quiz.
-
-### 3. **QuizScreen**
-- Renders questions (MCQ single-choice for now).
-- Animated transitions, palette for navigation, mark for review.
-- Keyboard shortcuts:
-  - `N`: Next question
-  - `P`: Previous question
-  - `M`: Mark/unmark for review
-  - `Enter`: Confirm/next/submit
-  - `Esc`: Toggle question palette
-
-### 4. **ImportExportScreen**
-- Drag-and-drop or select `.json` files to import quiz sets.
-- Lists all quizzes with options to start or delete.
-
-### 5. **SettingsScreen**
-- (Placeholder for future settings)
-
-### 6. **ResultsScreen**
-- Animated score, progress ring, breakdown cards, and feedback.
-- Buttons to retry, go to library, or home.
-
----
-
-## 🗄️ Data Model
-
-- **QuizSet**: `{ id, title, description, createdAt, questions: Question[] }`
-- **Question**: `{ id, type, questionText, options?, correctAnswers, ... }`
-- **Stored in**: IndexedDB (`luxuryQuizDB`, store: `quizSets`)
-
----
-
-## 🛠️ Utilities
-
-- **quizImporter.ts**: Safely imports and validates quiz JSON files.
-- **quizEngine.ts**: Pure functions for quiz session logic (navigation, scoring, review, etc.).
-
----
-
-## 🎨 Theming
-
-- **practiceTheme**: Glassy, soft blues.
-- **testTheme**: Black + gold premium.
-- **zenTheme**: Neon purple/blue gradients.
-- Switch themes instantly from the UI.
-
----
-
-## 🧑‍💻 Developer Notes
-
-- **No backend**: All logic and data is local to the browser.
-- **No React Router**: Uses a simple state-based screen router.
-- **All state**: Managed via React hooks and context.
-- **Animations**: Framer Motion for screens and buttons.
-- **IndexedDB**: Used directly for quiz persistence.
-
----
-
-## 📝 Importing Quiz Sets
-
-- Go to **Import/Export** screen.
-- Drag a `.json` file or use the file picker.
-- File must match the `QuizSet` structure (see `src/types/quizTypes.ts`).
-
----
-
-## 🧹 Cleaning Up
-
-- To clear all quizzes, clear your browser's IndexedDB for this site.
-
----
-
-## 🆘 Troubleshooting
-
-- **Missing dependencies?**  
-  Run `npm install`.
-- **Dev server won't start?**  
-  Make sure `@vitejs/plugin-react` is installed.
-- **Browser issues?**  
-  Use a modern browser (Chrome, Edge, Firefox, Safari).
-
----
-
-## 📦 Deployment
-
-- This app is ready for static hosting (e.g., GitHub Pages).
-- Build with:
-  ```sh
-  npm run build
-  ```
-  Then deploy the `dist/` folder.
-
----
-
-## 🤝 Credits
-
-- Built with [React](https://react.dev/), [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/).
-
----
-
-Enjoy your luxury quiz experience!
+This project is licensed under the MIT License.
